@@ -40,18 +40,31 @@ function init () {
 		ctx.fillStyle = "rgb(57, 55, 80)";
 		ctx.strokeStyle = "rgb(244, 251, 64)";
 
+		// make the button visible that starts the game
+		document.getElementById("toggleGame").style.visibility = "visible";
 		tick();
 	}
 }
+
+// Set the inner text of a DOM element
+function setInnerText(element, text) {
+	if ('innerText' in element)
+		element.innerText = text;
+	else if ('textContent' in element)
+		element.textContent = text;
+	else
+		throw "i give up";
+}
+
 
 function toggleGame() {
 	var b = document.getElementById("toggleGame");
 	if (Drifter.keepGoing) {
 		Drifter.keepGoing = false;
-		b.innerText = "start";
+		setInnerText(b, "start");
 	} else {
 		Drifter.keepGoing = true;
-		b.innerText = "stop";
+		setInnerText(b, "stop");
 		tick();
 	}
 }
@@ -70,24 +83,29 @@ function renderWall (wall, delta) {
 	shiftWall(wall, delta);
 }
 
+/* Shift a wall down, possibly adding/removing segments */
 function shiftWall (wall, delta) {
-	var i, lastPoint;
+	var i, p, negCount = 0;
 	delta = delta | 5;
 	for (i = 0; i < wall.length; i++) {
-		wall[i].y -= delta;
+		p = wall[i];
+		p.y -= delta;
+		if (p.y < 0)
+			negCount++;
 	}
-	lastPoint = wall[wall.length - 1];
-	if (lastPoint.y <= Drifter.height) {
+	if (negCount >= 2)
+		wall.splice(0, negCount - 1);
+	if (p.y <= Drifter.height) {
 		var bias;
 		if (Math.random () < 0.5) {
 			bias = 1;
 		} else {
 			bias = -1;
 		}
-		var p = {};
-		p.x = lastPoint.x + bias * 10 * Math.random();
-		p.y = lastPoint.y + 50 + 100 * Math.random();
-		wall.push(p);
+		var newPoint = {};
+		newPoint.x = p.x + bias * 10 * Math.random();
+		newPoint.y = p.y + 50 + 100 * Math.random();
+		wall.push(newPoint);
 	}
 }
 
@@ -115,7 +133,7 @@ function tick () {
 	ctx.fillRect(0, 0, Drifter.width, Drifter.height);
 
 	ctx.save();
-	ctx.setTransform(1, 0, 0, -1, canvas.width / 2, canvas.height, false);
+	ctx.setTransform(1, 0, 0, -1, Drifter.width / 2, Drifter.height, false);
 
 	ctx.fillStyle = "rgb(244, 251, 64)";
 	drawShip();
@@ -133,5 +151,5 @@ function tick () {
 
 	ctx.font = "12pt sans";
 	ctx.fillStyle = "rgb(244, 251, 64)";
-	ctx.fillText(Drifter.score, canvas.width * 0.85, 20);
+	ctx.fillText(Drifter.score, Drifter.width * 0.85, 20);
 }

@@ -1,20 +1,32 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
   <head>
 	<title>drifter: the game</title>
 	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.1.0/build/cssreset/reset-min.css">
 	<link rel="stylesheet" type="text/css" href="/css/drifter.css">
-	<script src="/js/drifter.js"></script>
+	<script src="/js/drifter.js" type="text/javascript"></script>
   </head>
   <body onload="init()">
 	<h1>drifter: a js/canvas game</h1>
 	<canvas id="canvas" width="400" height="600"></canvas>
-	<br>
 	<div id="description">
 	<div id="button_container">
 	<button id="toggleGame" type="button" onclick="toggleGame()">start</button>
 	</div>
-	<p><span class="directive">instructions: </span>move your ship with the left/right arrow keys, avoid the walls at all costs.</p>
-	<p><span class="directive">about: </span>created by evan klitzke; fondly inspired by the <a href="http://www.ticalc.org/archives/files/fileinfo/214/21467.html"><span class="nowrap">TI-89</span> game</a> by eric burgess.</p>
+	<p>
+	  <span class="directive">instructions: </span>
+	  move your ship with the left/right arrow keys, avoid the walls at all
+	  costs.
+	</p>
+	<p>
+	  <span class="directive">about: </span>
+	  created by evan klitzke; fondly inspired by
+	  the <a href="http://www.ticalc.org/archives/files/fileinfo/214/21467.html"><span class="nowrap">TI-89</span>
+	  game</a> by eric burgess.
+	</p>
+	<p>
+	  source code available <a href="http://github.com/eklitzke/drifter">on github</a>.
+	</p>
 	</div>
   </body>
 </html>
