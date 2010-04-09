@@ -1,0 +1,29 @@
+body {
+	font-family: sans;
+	padding: 10px 10px 0 20px;
+}
+
+h1 {
+	font-size: 130%;
+	font-weight: bold;
+	padding-bottom: 0.3em;
+}
+
+p {
+	padding-bottom: 0.3em;
+}
+
+.directive { font-weight: bold; }
+
+.nowrap {
+	white-space: nowrap;
+}
+
+
+#description {
+	max-width: 400px;
+}
+
+#button_container {
+	float: right;
+}

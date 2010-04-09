@@ -1,0 +1,13 @@
+application: drift-canvas
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+    - url: /(js|css)/(.+)
+      static_files: \1/\2
+      upload: (js|css)/(.+)
+
+    - url: /
+      static_files: index.html
+      upload: index.html
