@@ -60,9 +60,9 @@ function Game () {
 
 		if (this.keepGoing) {
 			var now = (new Date()).valueOf();
-			this.ctx.fillText(((now - this.ship.moveTime) / 1000).toFixed(2), this.width * 0.85, 20);
+			this.ctx.fillText(((now - this.ship.moveTime) / 1000).toFixed(2), this.width * 0.87, 20);
 		} else {
-			this.ctx.fillText("0.00", this.width * 0.85, 20);
+			this.ctx.fillText("0.00", this.width * 0.87, 20);
 		}
 
 
