@@ -25,10 +25,14 @@ function Wall(width, height) {
 			var offset = movement * (Math.random() * 2 - 1);
 
 			var x = last.x + this.width / 2 + offset;
-			if (x + newWidth >= this.width || x - newWidth <= 0)
-				var s = {x: last.x - offset, y: last.y + 100, width: newWidth};
-			else
+			if (x + newWidth >= this.width) {
+				var s = {x: last.x - movement, y: last.y + 100, width: newWidth};
+			} else if (x - newWidth <= 0) {
+				var s = {x: last.x + movement, y: last.y + 100, width: newWidth};
+			} else {
 				var s = {x: last.x + offset, y: last.y + 100, width: newWidth};
+			}
+			console.info(s);
 			this.segments.push(s);
 			last = s;
 		}
@@ -78,27 +82,29 @@ function Wall(width, height) {
 
 	};
 
-	var that = this;
-	var drawSide = function (ctx, side) {
+	this.draw = function (ctx) {
 		var i, s;
-		s = that.segments[0];
+		ctx.strokeStyle = "rgb(244, 251, 64)";
+		ctx.lineJoin = "round";
+
+		// left wall
+		s = this.segments[0];
 		ctx.beginPath();
-		if (side)
-			ctx.moveTo(s.x + s.width / 2, s.y);
-		else
-			ctx.moveTo(s.x - s.width / 2, s.y);
-		for (i = 1; i < that.segments.length; i++) {
-			s = that.segments[i];
-			if (side)
-				ctx.lineTo(s.x + s.width / 2, s.y);
-			else
-				ctx.lineTo(s.x - s.width / 2, s.y);
+		ctx.moveTo(s.x - s.width / 2, s.y);
+		for (i = 1; i < this.segments.length; i++) {
+			s = this.segments[i];
+			ctx.lineTo(s.x - s.width / 2, s.y);
 		}
 		ctx.stroke();
-	};
-	this.draw = function (ctx) {
-		ctx.strokeStyle = "rgb(244, 251, 64)";
-		drawSide(ctx, 0);
-		drawSide(ctx, 1);
+		
+		// right wall
+		s = this.segments[0];
+		ctx.beginPath();
+		ctx.moveTo(s.x + s.width / 2, s.y);
+		for (i = 1; i < this.segments.length; i++) {
+			s = this.segments[i];
+			ctx.lineTo(s.x + s.width / 2, s.y);
+		}
+		ctx.stroke();
 	};
 }

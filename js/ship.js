@@ -4,6 +4,7 @@ function Ship (width, height, baseHeight) {
 	this.baseHeight = baseHeight;
 	this.pos = 0;
 	this.velocity = 0;
+	this.hasMoved = false;
 
 	this.moveTime = (new Date()).valueOf();
 	this.bonus = 0;
@@ -55,7 +56,7 @@ function Ship (width, height, baseHeight) {
 	};
 	this.accelerate = function (direction) {
 		this.moveTime = (new Date()).valueOf();
-		this.velocity += direction * (0.30 + Math.random() * 0.10)
+		this.velocity += direction * (0.20 + Math.random() * 0.5)
 	};
 	this.move = function () {
 		this.pos += this.velocity;
