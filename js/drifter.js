@@ -1,50 +1,4 @@
-var Drifter = {keepGoing: false};
-var ctx;
-
-function init () {
-	var canvas = document.getElementById("canvas");
-	if (canvas.getContext) {
-		Drifter.width = canvas.width;
-		Drifter.height = canvas.height;
-		Drifter.walls = {};
-		Drifter.walls.left = [
-			{x: -100, y: 0},
-			{x: -70, y: 400},
-			{x: -70, y: 700}
-		];
-		Drifter.walls.right = [
-			{x: 100, y: 0},
-			{x: 70, y: 400},
-			{x: 70, y: 700}
-		];
-
-		Drifter.pos = 0;
-		Drifter.velocity = 0;
-		Drifter.score = 0;
-
-		document.onkeydown = function (e) {
-			// add a random component, to make arrow presses asymmetric
-			if (Drifter.keepGoing) {
-				var velocity = 0.15 + Math.random() * 0.01;
-				if (e.which == 37) {
-					Drifter.velocity -= velocity;
-				} else if (e.which == 39) {
-					Drifter.velocity += velocity;
-				}
-			}
-		}
-
-		ctx = canvas.getContext("2d");
-		ctx.lineJoin = 'round';
-		ctx.lineWidth = 2;
-		ctx.fillStyle = "rgb(57, 55, 80)";
-		ctx.strokeStyle = "rgb(244, 251, 64)";
-
-		// make the button visible that starts the game
-		document.getElementById("toggleGame").style.visibility = "visible";
-		tick();
-	}
-}
+var game = null;
 
 // Set the inner text of a DOM element
 function setInnerText(element, text) {
@@ -56,100 +10,134 @@ function setInnerText(element, text) {
 		throw "i give up";
 }
 
-
 function toggleGame() {
 	var b = document.getElementById("toggleGame");
-	if (Drifter.keepGoing) {
-		Drifter.keepGoing = false;
+	if (game && game.keepGoing) {
+		game.keepGoing = false;
 		setInnerText(b, "start");
 	} else {
-		Drifter.keepGoing = true;
+		if (!game)
+			game = new Game();
+		game.keepGoing = true;
 		setInnerText(b, "stop");
-		tick();
+		game.tick();
 	}
 }
 
-function renderWall (wall, delta) {
-	var i, p;
-	p = wall[0];
-	ctx.beginPath();
-	ctx.moveTo(p.x, p.y);
-	ctx.strokeStyle = "rgb(244, 251, 64)";
-	for (i = 1; i < wall.length; i++) {
-		p = wall[i];
-		ctx.lineTo(p.x, p.y);
-	}
-	ctx.stroke();
-	shiftWall(wall, delta);
-}
-
-/* Shift a wall down, possibly adding/removing segments */
-function shiftWall (wall, delta) {
-	var i, p, negCount = 0;
-	delta = delta | 5;
-	for (i = 0; i < wall.length; i++) {
-		p = wall[i];
-		p.y -= delta;
-		if (p.y < 0)
-			negCount++;
-	}
-	if (negCount >= 2)
-		wall.splice(0, negCount - 1);
-	if (p.y <= Drifter.height) {
-		var bias;
-		if (Math.random () < 0.5) {
-			bias = 1;
-		} else {
-			bias = -1;
+function tickCallback () {
+	if (game) {
+		game.tick();
+		if (game.gameOver) {
+			var b = document.getElementById("toggleGame");
+			setInnerText(b, "start");
+			game = null;
 		}
-		var newPoint = {};
-		newPoint.x = p.x + bias * 10 * Math.random();
-		newPoint.y = p.y + 50 + 100 * Math.random();
-		wall.push(newPoint);
 	}
 }
 
-function drawShip () {
-	ctx.beginPath();
-	ctx.moveTo(Drifter.pos - 10, 10);
-	ctx.lineTo(Drifter.pos - 10, 35);
-	ctx.arc(Drifter.pos - 5, 35, 5, Math.PI, Math.PI / 2, true);
-	ctx.lineTo(Drifter.pos + 5, 40);
-	ctx.arc(Drifter.pos + 5, 35, 5, Math.PI / 2, 0, true);
-	ctx.lineTo(Drifter.pos + 10, 15);
-	ctx.arc(Drifter.pos + 5, 10, 5, 0, Math.PI * 1.5, true);
-	ctx.lineTo(Drifter.pos - 5, 5);
-	ctx.arc(Drifter.pos - 5, 10, 5, Math.PI * 1.5, Math.PI, true);
-	ctx.fill();
+document.onkeydown = function (e) {
+	if (game && game.keepGoing && !game.gameOver) {
+		if (e.which == 37) {
+			game.ship.accelerate(-1);
+		} else if (e.which == 39) {
+			game.ship.accelerate(1);
+		}
+	}
+	if (e.which == 32) {
+		if (game && game.keepGoing && !game.gameOver) {
+			game.keepGoing = false;
+		} else if (game && !game.keepGoing) {
+			game.keepGoing = true;
+			game.tick();
+		} else if (!game || game.gameOver) {
+			game = new Game();
+			game.keepGoing = true;
+			game.tick();
+		}
+	}
 }
 
-function tick () {
-	var px, py;
 
-	ctx.fillStyle = "rgb(57, 55, 80)";
-	ctx.strokeStyle = "rgb(244, 251, 64)";
+function Game () {
+	this.gameOver = false;
+	this.keepGoing = false;
+	this.ctx = null;
+	this.speed = 15;
 
-	ctx.clearRect(0, 0, Drifter.width, Drifter.height);
-	ctx.fillRect(0, 0, Drifter.width, Drifter.height);
+	this.init = function () {
+		var canvas = document.getElementById("canvas");
+		if (canvas.getContext) {
+			this.width = canvas.width;
+			this.height = canvas.height;
+			this.walls = new Wall(canvas.width, canvas.height);
+			this.ship = new Ship(20, 30, 5);
+			this.score = 0;
 
-	ctx.save();
-	ctx.setTransform(1, 0, 0, -1, Drifter.width / 2, Drifter.height, false);
+			this.ctx = canvas.getContext("2d");
+			this.ctx.lineJoin = 'round';
+			this.ctx.lineWidth = 2;
+			this.ctx.fillStyle = "rgb(57, 55, 80)";
+			this.ctx.strokeStyle = "rgb(244, 251, 64)";
 
-	ctx.fillStyle = "rgb(244, 251, 64)";
-	drawShip();
-	renderWall(Drifter.walls.left);
-	renderWall(Drifter.walls.right);
+			// make the button visible that starts the game
+			document.getElementById("toggleGame").style.visibility = "visible";
+			this.tick();
+		}
+	};
 
+	this.tick = function () {
+		var px, py;
+		var start = (new Date()).valueOf();
+		
+		this.ctx.fillStyle = "rgb(57, 55, 80)";
+		this.ctx.strokeStyle = "rgb(244, 251, 64)";
+		
+		this.ctx.clearRect(0, 0, this.width, this.height);
+		this.ctx.fillRect(0, 0, this.width, this.height);
+		
+		this.ctx.save();
+		this.ctx.setTransform(1, 0, 0, -1, this.width / 2, this.height, false);
+		
+		this.ctx.fillStyle = "rgb(244, 251, 64)";
+		this.ship.draw(this.ctx);
+		this.walls.draw(this.ctx);
 
-	if (Drifter.keepGoing) {
-		/* Update the position */
-		Drifter.pos += Drifter.velocity;
-		window.setTimeout('tick()', 10);
-	}
-	ctx.restore();
-	Drifter.score += 10;
+		if (this.keepGoing && !this.gameOver) {
+			/* Update the position */
+			if (this.walls.checkCollision(this.ctx, this.ship))
+				this.gameOver = true;
+			this.pos += this.velocity;
+			this.walls.shift(5);
+			this.walls.extend(this.width / 3, this.width / 12, this.width / 8, this.width / 16);
 
-	ctx.font = "12pt sans";
-	ctx.fillStyle = "rgb(244, 251, 64)";
-	ctx.fillText(Drifter.score, Drifter.width * 0.85, 20);
+			this.ship.move();
+
+			var elapsed = (new Date()).valueOf() - start;
+			window.setTimeout("tickCallback()", this.speed - elapsed);
+		}
+		this.ctx.restore();
+
+		this.ctx.font = "12pt monospace";
+		this.ctx.fillStyle = "rgb(244, 251, 64)";
+		this.ctx.fillText(parseInt(this.score, 10), this.width * 0.04, 20);
+
+		if (this.gameOver) {
+			this.ctx.font = "40pt monospace";
+			this.ctx.fillStyle = "rgb(255, 0, 0)";
+			// TODO: get measureText working, to properly center this
+			this.ctx.fillText("fail", this.width / 3, this.height / 2);
+		} else {
+			var bonus = this.ship.getBonus();
+			if (bonus > 1)
+				this.score *= bonus;
+			else
+				this.score += 10;
+		}
+	};
+
+	this.init();
+}
+
+function init() {
+	game = new Game();
 }
