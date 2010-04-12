@@ -45,7 +45,7 @@ function Game () {
 				this.gameOver = true;
 			this.pos += this.velocity;
 			this.walls.shift(5);
-			this.walls.extend(this.width / 3, this.width / 12, this.width / 6);
+			this.walls.extend(this.width / 3, this.width / 10, this.width / 8);
 
 			this.ship.move();
 
