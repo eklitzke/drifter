@@ -63,7 +63,7 @@ document.onkeydown = function (e) {
 			game.tick();
 		}
 	}
-}
+};
 
 document.onkeyup = function (e) {
 
@@ -79,4 +79,4 @@ document.onkeyup = function (e) {
 		clearTimeout(accelId);
 		accelId = null;
 	}
-}
+};

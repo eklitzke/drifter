@@ -35,7 +35,7 @@ function Ship (width, height, baseHeight) {
 	};
 	this.accelerate = function (direction) {
 		this.moveTime = (new Date()).valueOf();
-		this.velocity += direction * (0.20 + Math.random() * 0.5)
+		this.velocity += direction * (0.20 + Math.random() * 0.5);
 	};
 	this.move = function () {
 		this.pos += this.velocity;
@@ -54,5 +54,5 @@ function Ship (width, height, baseHeight) {
 			}
 		}
 		return 1;
-	}
+	};
 }
